@@ -13,8 +13,7 @@ export interface VisitorPayload {
 
 /**
  * Dispatches automated visitor telemetry to the developer's registered notification receiver.
- * Uses Formspree / Webhook gateway configured for Rishiadik54@gmail.com with safe local throttling
- * to avoid spamming multiple emails on simple page refreshes within the same session.
+ * Directly targeted to rishiadik54@gmail.com via FormSubmit AJAX service with session throttling.
  */
 export async function trackVisitorTelemetry(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
@@ -39,24 +38,31 @@ export async function trackVisitorTelemetry(): Promise<boolean> {
   try {
     sessionStorage.setItem(SESSION_KEY, 'true');
 
-    // Transmit to Formspree endpoint (or developer webhook)
-    const response = await fetch('https://formspree.io/f/mqkvrvbw', {
+    // Direct transmission to developer's verified email address: rishiadik54@gmail.com
+    const targetEmail = DEVELOPER_INFO.contacts.email || 'rishiadik54@gmail.com';
+    const response = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        subject: `⚡ [PORTFOLIO ALERT] New Visitor Landed on ${DEVELOPER_INFO.name}'s Portfolio`,
-        recipient: DEVELOPER_INFO.contacts.email,
-        visitorData: payload,
+        _subject: `⚡ [PORTFOLIO ALERT] New Visitor Landed on ${DEVELOPER_INFO.name}'s Portfolio`,
+        _template: 'table',
+        _captcha: 'false',
+        name: 'Portfolio Visitor Telemetry',
+        email: targetEmail,
         timestamp: new Date().toLocaleString(),
+        url: payload.url,
+        referrer: payload.referrer,
+        timeZone: payload.timeZone,
+        screen: payload.screenResolution,
+        platform: payload.platform,
       }),
     });
 
     return response.ok;
   } catch (err) {
-    // Fail gracefully without interrupting user experience
     console.debug('Telemetry dispatch notice:', err);
     return false;
   }
