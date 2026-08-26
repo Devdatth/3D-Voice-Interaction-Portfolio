@@ -1,0 +1,6 @@
+{
+  "name": "DEVDATTH ADIK | Futuristic 3D Developer Portfolio",
+  "description": "Award-winning futuristic 3D developer portfolio and system OS for DEVDATTH ADIK, AI & Data Science Engineer.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
